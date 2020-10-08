@@ -1,4 +1,6 @@
-# akl-wingman
+# Wingman
+
+[Demo](http://akl-wingman.herokuapp.com/)
 
 ## Project setup
 ```
