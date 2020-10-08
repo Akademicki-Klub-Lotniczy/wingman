@@ -30,6 +30,7 @@ export default class WingProfile {
     ) { }
 }
 
+/*
 function test() {
     const polar_data = new PolarData(
         [1, 2], [1, 2], [1, 2], [1, 2],
@@ -38,3 +39,4 @@ function test() {
 
     console.log(polar_data.alpha);
 }
+*/

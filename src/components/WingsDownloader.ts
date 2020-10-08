@@ -1,7 +1,6 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import BeautifulDom from 'beautiful-dom';
 import HTMLElementData from 'beautiful-dom/dist/htmlelement';
-import { onUpdated } from 'vue';
 
 import WingProfile, { PolarData, WingPolar } from './WingProfile';
 
@@ -25,14 +24,14 @@ function DownloadOnTheFly(filename: string, content: string) {
     document.body.removeChild(element);
 }
 
-async function fetch_cors_anywhere(url: string) {
+async function fetch_cors_anywhere(url: string): Promise<AxiosResponse> {
     const no_cors_url = `https://akl-cors-anywhere.herokuapp.com/${url}`;
 
     return axios.get(no_cors_url);
 }
 
 async function get_dom(url: string) {
-    const response: any = await (fetch_cors_anywhere(url));
+    const response: AxiosResponse = await (fetch_cors_anywhere(url));
     return new BeautifulDom(response.data);
 }
 
