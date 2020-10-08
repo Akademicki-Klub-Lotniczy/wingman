@@ -23,6 +23,7 @@ module.exports = {
     'no-await-in-loop': 'off',
     'no-useless-constructor': 'off',
     'max-len': 'off',
-    quotes: 'off',
+    'quotes': 'off',
+    'consistent-this': [2, "self"]
   },
 };
