@@ -1,5 +1,7 @@
 # Wingman
 
+[Demo](http://akl-wingman.herokuapp.com/)
+
 ## Project setup
 ```
 npm install
