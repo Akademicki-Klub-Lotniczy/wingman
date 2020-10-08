@@ -1,4 +1,4 @@
-# akl-wingman
+# Wingman
 
 ## Project setup
 ```
