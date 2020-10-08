@@ -11,13 +11,13 @@
       </p>
 
       <p>
-        <b> Cl/Cd </b> w Cl równym
-        <input v-model="cl_cd_section.cl_value" type="text" name="" id="" />
-        <select v-model="cl_cd_section.comparator" name="" id="">
+        <b> Cl/Alpha </b> w Alpha równym
+        <input v-model="cl_alpha_section.alpha_value" type="text" name="" id="" />
+        <select v-model="cl_alpha_section.comparator" name="" id="">
           <option value="higher_than">większe niż</option>
           <option value="lower_than">mniejsze niż</option>
         </select>
-        <input v-model="cl_cd_section.cd_value" type="text" name="" id="" />
+        <input v-model="cl_alpha_section.cd_value" type="text" name="" id="" />
       </p>
 
       <p>
@@ -74,6 +74,25 @@ import axios from "axios";
 import WingProfile, { PolarData, WingPolar } from "../components/WingProfile";
 // import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
 
+function index_with_value_closest_to(
+  array: number[],
+  value_to_search_for: number
+) {
+  let closest_distance = Infinity;
+  let closest_number_index = -1;
+
+  for (const [index, value] of array.entries()) {
+    const distance = Math.abs(value_to_search_for - value);
+
+    if (distance < closest_distance) {
+      closest_distance = distance;
+      closest_number_index = index;
+    }
+  }
+
+  return closest_number_index;
+}
+
 interface WingsData {
   data: WingProfile[];
 }
@@ -105,7 +124,7 @@ export default defineComponent({
         active: false,
       },
 
-      cl_cd_section: {
+      cl_alpha_section: {
         comparator: "higher_than",
         cl_value: "",
         cd_value: "",
@@ -164,8 +183,10 @@ export default defineComponent({
         Number.isNaN(parseInt(this.reynolds_section.from, 10))
       ) {
         this.reynolds_section.active = false;
+        console.log("Reynolds section inactive");
       } else {
         this.reynolds_section.active = true;
+        console.log("Reynolds section active");
       }
 
       const reynolds_section_range = [
@@ -177,13 +198,15 @@ export default defineComponent({
        * VALIDATE CD/CL SECTION
        */
 
-      const cl_cd_cl_value = parseInt(this.cl_cd_section.cl_value, 10);
-      const cl_cd_cd_value = parseInt(this.cl_cd_section.cd_value, 10);
+      const cl_cd_cl_value = parseInt(this.cl_alpha_section.cl_value, 10);
+      const cl_cd_cd_value = parseInt(this.cl_alpha_section.cd_value, 10);
 
       if (Number.isNaN(cl_cd_cl_value) || Number.isNaN(cl_cd_cd_value)) {
-        this.cl_cd_section.active = false;
+        this.cl_alpha_section.active = false;
+        console.log("CL/CD section inactive");
       } else {
-        this.cl_cd_section.active = true;
+        this.cl_alpha_section.active = true;
+        console.log("CL/CD section active");
       }
 
       /**
@@ -192,11 +215,11 @@ export default defineComponent({
 
       const cl_cd_alpha_alpha_value = parseInt(
         this.cl_cd_alpha_section.alpha_value,
-        10,
+        10
       );
       const cl_cd_alpha_cl_cd_value = parseInt(
         this.cl_cd_alpha_section.cl_cd_value,
-        10,
+        10
       );
 
       if (
@@ -228,14 +251,14 @@ export default defineComponent({
           }
 
           /**
-           * FILTER CL/CD
+           * FILTER CL/Alpha
            */
-          if (this.cl_cd_section.active) {
+          if (this.cl_alpha_section.active) {
             //
             //
 
-            if (this.cl_cd_section.comparator === "lower_than") {
-              break;
+            if (this.cl_alpha_section.comparator === "lower_than") {
+              // 
             }
           }
         }

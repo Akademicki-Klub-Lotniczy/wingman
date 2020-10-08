@@ -26,5 +26,6 @@ module.exports = {
     'quotes': 'off',
     'consistent-this': [2, "self"],
     'operator-linebreak': 'off',
+    'comma-dangle': 'off',
   },
 };
