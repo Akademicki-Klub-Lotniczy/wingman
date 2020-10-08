@@ -122,15 +122,15 @@ export default defineComponent({
   },
   created() {
     console.log(this.app_state);
-    const wings_data_from_local_storage = localStorage.getItem("wings_data");
+    // const wings_data_from_local_storage = localStorage.getItem("wings_data");
 
-    if (wings_data_from_local_storage !== null) {
-      console.log("Wings data already present, loading from local storage");
-      this.wings_data.data = JSON.parse(wings_data_from_local_storage);
+    // if (wings_data_from_local_storage !== null) {
+    //   console.log("Wings data already present, loading from local storage");
+    //   this.wings_data.data = JSON.parse(wings_data_from_local_storage);
 
-      console.log(this.wings_data.data[0].name);
-      return;
-    }
+    //   console.log(this.wings_data.data[0].name);
+    //   return;
+    // }
     console.log("Fetching wings data..");
 
     // const self = this;
@@ -139,7 +139,7 @@ export default defineComponent({
       console.log("Got wings data!");
       // console.log(this);
       this.wings_data = response.data;
-      localStorage.setItem("wings_data", JSON.stringify(this.wings_data));
+      // localStorage.setItem("wings_data", JSON.stringify(this.wings_data));
 
       console.log(this.wings_data);
       // console.log(this.wings_data[0].name);
@@ -164,6 +164,8 @@ export default defineComponent({
         Number.isNaN(parseInt(this.reynolds_section.from, 10))
       ) {
         this.reynolds_section.active = false;
+      } else {
+        this.reynolds_section.active = true;
       }
 
       const reynolds_section_range = [
@@ -175,9 +177,36 @@ export default defineComponent({
        * VALIDATE CD/CL SECTION
        */
 
+      const cl_cd_cl_value = parseInt(this.cl_cd_section.cl_value, 10);
+      const cl_cd_cd_value = parseInt(this.cl_cd_section.cd_value, 10);
+
+      if (Number.isNaN(cl_cd_cl_value) || Number.isNaN(cl_cd_cd_value)) {
+        this.cl_cd_section.active = false;
+      } else {
+        this.cl_cd_section.active = true;
+      }
+
       /**
        * VALIDATE CD/CL v ALPHA SECTION
        */
+
+      const cl_cd_alpha_alpha_value = parseInt(
+        this.cl_cd_alpha_section.alpha_value,
+        10,
+      );
+      const cl_cd_alpha_cl_cd_value = parseInt(
+        this.cl_cd_alpha_section.cl_cd_value,
+        10,
+      );
+
+      if (
+        Number.isNaN(cl_cd_alpha_alpha_value) ||
+        Number.isNaN(cl_cd_alpha_cl_cd_value)
+      ) {
+        this.cl_cd_alpha_section.active = false;
+      } else {
+        this.cl_cd_alpha_section.active = true;
+      }
 
       /**
        * THE ACTUAL SEARCH
@@ -185,7 +214,30 @@ export default defineComponent({
 
       for (const wing of this.wings_data.data) {
         for (const wing_polar of wing.polars) {
-          break;
+          /**
+           * FILTER REYNOLDS
+           */
+          if (this.reynolds_section.active) {
+            if (wing_polar.reynolds < reynolds_section_range[0]) {
+              continue;
+            }
+
+            if (wing_polar.reynolds > reynolds_section_range[1]) {
+              continue;
+            }
+          }
+
+          /**
+           * FILTER CL/CD
+           */
+          if (this.cl_cd_section.active) {
+            //
+            //
+
+            if (this.cl_cd_section.comparator === "lower_than") {
+              break;
+            }
+          }
         }
       }
     },
