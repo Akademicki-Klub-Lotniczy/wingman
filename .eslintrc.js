@@ -24,6 +24,7 @@ module.exports = {
     'no-useless-constructor': 'off',
     'max-len': 'off',
     'quotes': 'off',
-    'consistent-this': [2, "self"]
+    'consistent-this': [2, "self"],
+    'operator-linebreak': 'off',
   },
 };
