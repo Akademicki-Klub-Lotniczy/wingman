@@ -17,7 +17,7 @@ export default defineComponent({
   data() {
     return {
       reynolds_range: [0, 0],
-      wings_data: number[] = [],
+      wings_data: [],
     };
   },
   created() {
