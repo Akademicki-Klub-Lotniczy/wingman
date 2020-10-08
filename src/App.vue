@@ -1,7 +1,7 @@
 <template>
   <div id="nav">
     <router-link to="/">Home</router-link> |
-    <router-link to="/downloader">Wings Downloader</router-link>
+    <router-link to="/downloader">Wings Downloader (developer only)</router-link>
   </div>
   <router-view/>
 </template>
