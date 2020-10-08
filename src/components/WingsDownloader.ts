@@ -63,7 +63,7 @@ async function getWingPolar(polar_link_object: any): Promise<WingPolar> {
 
     /**
      * Parse polars CSV file.
-     * 
+     *
      * The file structure is:
      *  - Header: lines 1 - 9
      *  - Blank line 10
