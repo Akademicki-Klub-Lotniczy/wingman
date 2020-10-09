@@ -4,10 +4,13 @@
 
     <form>
       <p>
-        <b> Liczba Reynoldsa </b> od
-        <input type="text" v-model="reynolds_section.from" name="" id="" />
-        do
-        <input type="text" v-model="reynolds_section.to" name="" id="" />
+        <b> Liczba Reynoldsa </b>
+        <input
+          type="text"
+          v-model="reynolds_number_to_search_for"
+          name=""
+          id=""
+        />
       </p>
 
       <p>
@@ -18,11 +21,12 @@
           name=""
           id=""
         />
-        <select v-model="cl_alpha_section.comparator" name="" id="">
+        <!-- <select v-model="cl_alpha_section.comparator" name="" id="">
           <option value="higher_than">większe niż</option>
           <option value="lower_than">mniejsze niż</option>
-        </select>
-        <input v-model="cl_alpha_section.cd_value" type="text" name="" id="" />
+        </select> -->
+        większe niż
+        <input v-model="cl_alpha_section.cl_value" type="text" name="" id="" />
       </p>
 
       <p>
@@ -33,10 +37,11 @@
           name=""
           id=""
         />
-        <select v-model="cl_cd_alpha_section.comparator" name="" id="">
+        <!-- <select v-model="cl_cd_alpha_section.comparator" name="" id="">
           <option value="higher_than">większe niż</option>
           <option value="lower_than">mniejsze niż</option>
-        </select>
+        </select> -->
+        większe niż
         <input
           v-model="cl_cd_alpha_section.cl_cd_value"
           type="text"
@@ -105,6 +110,17 @@ function index_with_value_closest_to(
   return closest_number_index;
 }
 
+function parse_alpha_value(wing_polar: WingPolar, value: string): number {
+  const float_value = Number.parseFloat(value);
+
+  if (Number.isNaN(float_value)) {
+    alert("Coś jest nie tak z Alphami");
+    // return ;
+  }
+
+  return index_with_value_closest_to(wing_polar.polar_data.alpha, float_value);
+}
+
 interface WingsData {
   data: WingProfile[];
 }
@@ -130,24 +146,18 @@ export default defineComponent({
       wings_data: { data: [] } as WingsData,
       wings_search_result: { data: [] } as SearchResult,
 
-      reynolds_section: {
-        from: "",
-        to: "",
-        active: false,
-      },
+      reynolds_number_to_search_for: 200000,
 
       cl_alpha_section: {
-        comparator: "higher_than",
+        // comparator: "higher_than",
+        alpha_value: "",
         cl_value: "",
-        cd_value: "",
-        active: false,
       },
 
       cl_cd_alpha_section: {
-        comparator: "lower_than",
+        // comparator: "lower_than",
         alpha_value: "",
         cl_cd_value: "",
-        active: true,
       },
     };
   },
@@ -191,33 +201,71 @@ export default defineComponent({
       this.wings_search_result.data = [];
       this.app_state = WingSearchState.Searching;
 
-      // console.log("This fucks up....");
+      const cl_alpha_cl_value = Number.parseFloat(
+        this.cl_alpha_section.cl_value
+      );
+
+      if (Number.isNaN(cl_alpha_cl_value)) {
+        alert("Coś jest nie tak w Cl w sekcji Cl v Alpha");
+        this.app_state = WingSearchState.DoneSearching;
+        return;
+      }
+
+      const cl_cd_alpha_cl_cd_value = Number.parseFloat(
+        this.cl_cd_alpha_section.cl_cd_value
+      );
+
+      if (Number.isNaN(cl_cd_alpha_cl_cd_value)) {
+        alert("Coś jest nie tak w Cl/Cd w sekcji Cl/Cd v Alpha");
+        this.app_state = WingSearchState.DoneSearching;
+        return;
+      }
+
+      console.log(`Reynolds: ${this.reynolds_number_to_search_for}`);
+
       for (const wing of this.wings_data.data) {
-        // console.log("Iterating through polars");
+        // console.log(wing.name);
         for (const wing_polar of wing.polars) {
-          // 200 000 reynolds
           // console.log("Reyunolds check...?");
-          if (wing_polar.reynolds !== 200000) {
+          if (wing_polar.reynolds !== this.reynolds_number_to_search_for) {
             continue;
           }
 
-          // console.log("This fucks up!!!!!!!");
+          const cl_alpha_alpha_indexes = this.cl_alpha_section.alpha_value
+            .split(";")
+            .map((value) => parse_alpha_value(wing_polar, value));
 
-          // I cl dla 0 alphy większy od 1
-          const alpha_zero_index = index_with_value_closest_to(
-            wing_polar.polar_data.alpha,
-            0
-          );
-          if (wing_polar.polar_data.cl[alpha_zero_index] < 0) {
+          let this_polar_passed = true;
+          for (const alpha_index of cl_alpha_alpha_indexes) {
+            if (wing_polar.polar_data.cl[alpha_index] < cl_alpha_cl_value) {
+              this_polar_passed = false;
+              break;
+            }
+          }
+
+          if (!this_polar_passed) {
             continue;
           }
 
-          // I cl/cd  dla zera większy od 50
-          if (
-            wing_polar.polar_data.cl[alpha_zero_index] /
-              wing_polar.polar_data.cd[alpha_zero_index] <
-            50
-          ) {
+          this_polar_passed = true;
+
+          const cl_cd_alpha_alpha_indexes = this.cl_cd_alpha_section.alpha_value
+            .split(";")
+            .map((value) => parse_alpha_value(wing_polar, value));
+
+          for (const alpha_index of cl_alpha_alpha_indexes) {
+            // I cl/cd  dla zera większy od 50
+            if (
+              wing_polar.polar_data.cl[alpha_index] /
+                wing_polar.polar_data.cd[alpha_index] <
+              cl_cd_alpha_cl_cd_value
+            ) {
+              this_polar_passed = false;
+              break;
+            }
+          }
+
+          if (!this_polar_passed) {
             continue;
           }
 
