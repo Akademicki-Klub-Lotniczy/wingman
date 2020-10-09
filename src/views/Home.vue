@@ -69,7 +69,9 @@
         v-bind:key="search_result.url"
         v-for="search_result in this.wings_search_result.data"
       >
-        <a href="{{search_result.url}}">{{ search_result.url }}</a>
+        <a v-bind:href="search_result.url" target="_blank">{{
+          search_result.url
+        }}</a>
       </div>
     </div>
 
