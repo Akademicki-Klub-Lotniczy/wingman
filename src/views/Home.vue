@@ -12,7 +12,12 @@
 
       <p>
         <b> Cl/Alpha </b> w Alpha równym
-        <input v-model="cl_alpha_section.alpha_value" type="text" name="" id="" />
+        <input
+          v-model="cl_alpha_section.alpha_value"
+          type="text"
+          name=""
+          id=""
+        />
         <select v-model="cl_alpha_section.comparator" name="" id="">
           <option value="higher_than">większe niż</option>
           <option value="lower_than">mniejsze niż</option>
@@ -54,6 +59,13 @@
       "
     >
       Coś tu mamy...
+
+      <div
+        v-bind:key="search_result.url"
+        v-for="search_result in this.wings_search_result.data"
+      >
+        <a href="{{search_result.url}}">{{ search_result.url }}</a>
+      </div>
     </div>
 
     <div
@@ -157,7 +169,16 @@ export default defineComponent({
     axios.get("/wings.json").then((response) => {
       console.log("Got wings data!");
       // console.log(this);
-      this.wings_data = response.data;
+      this.wings_data.data = response.data;
+
+      let counter = 1;
+
+      for (const wing of this.wings_data.data) {
+        for (const wing_polar of wing.polars) {
+          counter += 1;
+        }
+      }
+      console.log(`All polars: ${counter}`);
       // localStorage.setItem("wings_data", JSON.stringify(this.wings_data));
 
       console.log(this.wings_data);
@@ -170,99 +191,44 @@ export default defineComponent({
       this.wings_search_result.data = [];
       this.app_state = WingSearchState.Searching;
 
-      // setTimeout(() => {
-      //   this.app_state = WingSearchState.DoneSearching;
-      // }, 3000);
-
-      /**
-       * VALIDATE REYNOLDS SECTION
-       */
-
-      if (
-        Number.isNaN(parseInt(this.reynolds_section.from, 10)) ||
-        Number.isNaN(parseInt(this.reynolds_section.from, 10))
-      ) {
-        this.reynolds_section.active = false;
-        console.log("Reynolds section inactive");
-      } else {
-        this.reynolds_section.active = true;
-        console.log("Reynolds section active");
-      }
-
-      const reynolds_section_range = [
-        parseInt(this.reynolds_section.from, 10),
-        parseInt(this.reynolds_section.to, 10),
-      ];
-
-      /**
-       * VALIDATE CD/CL SECTION
-       */
-
-      const cl_cd_cl_value = parseInt(this.cl_alpha_section.cl_value, 10);
-      const cl_cd_cd_value = parseInt(this.cl_alpha_section.cd_value, 10);
-
-      if (Number.isNaN(cl_cd_cl_value) || Number.isNaN(cl_cd_cd_value)) {
-        this.cl_alpha_section.active = false;
-        console.log("CL/CD section inactive");
-      } else {
-        this.cl_alpha_section.active = true;
-        console.log("CL/CD section active");
-      }
-
-      /**
-       * VALIDATE CD/CL v ALPHA SECTION
-       */
-
-      const cl_cd_alpha_alpha_value = parseInt(
-        this.cl_cd_alpha_section.alpha_value,
-        10
-      );
-      const cl_cd_alpha_cl_cd_value = parseInt(
-        this.cl_cd_alpha_section.cl_cd_value,
-        10
-      );
-
-      if (
-        Number.isNaN(cl_cd_alpha_alpha_value) ||
-        Number.isNaN(cl_cd_alpha_cl_cd_value)
-      ) {
-        this.cl_cd_alpha_section.active = false;
-      } else {
-        this.cl_cd_alpha_section.active = true;
-      }
-
-      /**
-       * THE ACTUAL SEARCH
-       */
-
+      // console.log("This fucks up....");
       for (const wing of this.wings_data.data) {
+        // console.log("Iterating through polars");
         for (const wing_polar of wing.polars) {
-          /**
-           * FILTER REYNOLDS
-           */
-          if (this.reynolds_section.active) {
-            if (wing_polar.reynolds < reynolds_section_range[0]) {
-              continue;
-            }
-
-            if (wing_polar.reynolds > reynolds_section_range[1]) {
-              continue;
-            }
+          // 200 000 reynolds
+          // console.log("Reyunolds check...?");
+          if (wing_polar.reynolds !== 200000) {
+            continue;
           }
 
-          /**
-           * FILTER CL/Alpha
-           */
-          if (this.cl_alpha_section.active) {
-            //
-            //
+          // console.log("This fucks up!!!!!!!");
 
-            if (this.cl_alpha_section.comparator === "lower_than") {
-              // 
-            }
+          // I cl dla 0 alphy większy od 1
+          const alpha_zero_index = index_with_value_closest_to(
+            wing_polar.polar_data.alpha,
+            0
+          );
+          if (wing_polar.polar_data.cl[alpha_zero_index] < 0) {
+            continue;
           }
+
+          // I cl/cd  dla zera większy od 50
+          if (
+            wing_polar.polar_data.cl[alpha_zero_index] /
+              wing_polar.polar_data.cd[alpha_zero_index] <
+            50
+          ) {
+            continue;
+          }
+
+          // console.log("This fucks up");
+          this.wings_search_result.data.push(wing_polar);
         }
       }
+
+      console.log("All done");
+      console.log(this.wings_search_result.data);
+      this.app_state = WingSearchState.DoneSearching;
     },
   },
 });
