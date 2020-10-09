@@ -253,6 +253,8 @@ export default defineComponent({
             .split(";")
             .map((value) => parse_alpha_value(wing_polar, value));
 
+          // console.log("INDEXES:", cl_cd_alpha_alpha_indexes);
+
           for (const alpha_index of cl_alpha_alpha_indexes) {
             // I cl/cd  dla zera większy od 50
             if (
