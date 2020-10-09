@@ -2,6 +2,10 @@
   <div class="home">
     <!-- <a href="/wings.json">Download the fucking wings</a> -->
 
+    <div v-if="downloading_wings" style="color: #f66">
+      <h2>Trwa pobieranie skrzydeł, czekaj pls</h2>
+    </div>
+
     <form>
       <p>
         <b> Liczba Reynoldsa </b>
@@ -145,6 +149,8 @@ export default defineComponent({
       WingSearchState,
       app_state: WingSearchState.Loaded,
 
+      downloading_wings: false,
+
       wings_data: { data: [] } as WingsData,
       wings_search_result: { data: [] } as SearchResult,
 
@@ -175,6 +181,7 @@ export default defineComponent({
     //   return;
     // }
     console.log("Fetching wings data..");
+    this.downloading_wings = true;
 
     // const self = this;
 
@@ -194,6 +201,7 @@ export default defineComponent({
       // localStorage.setItem("wings_data", JSON.stringify(this.wings_data));
 
       console.log(this.wings_data);
+      this.downloading_wings = false;
       // console.log(this.wings_data[0].name);
     });
   },
