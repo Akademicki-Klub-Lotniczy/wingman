@@ -265,7 +265,7 @@ export default defineComponent({
 
           // console.log("INDEXES:", cl_cd_alpha_alpha_indexes);
 
-          for (const alpha_index of cl_alpha_alpha_indexes) {
+          for (const alpha_index of cl_cd_alpha_alpha_indexes) {
             // I cl/cd  dla zera większy od 50
             if (
               wing_polar.polar_data.cl[alpha_index] /
