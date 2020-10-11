@@ -54,6 +54,12 @@
         />
       </p>
 
+      <p>
+        <i>
+          Protip: Wpisz wiele wartości alphy, rozdzielonych <b>średnikami</b>,
+          żeby sprawdzić wiele wartości naraz, na przykład "<b>1;15</b>"
+        </i>
+      </p>
       <button type="button" v-on:click="search_for_wings">Szukaj</button>
     </form>
 
@@ -241,46 +247,55 @@ export default defineComponent({
             continue;
           }
 
-          const cl_alpha_alpha_indexes = this.cl_alpha_section.alpha_value
-            .split(";")
-            .map((value) => parse_alpha_value(wing_polar, value));
+          /**
+           * Filter cl v alpha
+           */
+          {
+            let this_polar_passed = true;
 
-          let this_polar_passed = true;
-          for (const alpha_index of cl_alpha_alpha_indexes) {
-            if (wing_polar.polar_data.cl[alpha_index] < cl_alpha_cl_value) {
-              this_polar_passed = false;
-              break;
+            const cl_alpha_alpha_indexes = this.cl_alpha_section.alpha_value
+              .split(";")
+              .map((value) => parse_alpha_value(wing_polar, value));
+
+            for (const alpha_index of cl_alpha_alpha_indexes) {
+              if (wing_polar.polar_data.cl[alpha_index] < cl_alpha_cl_value) {
+                this_polar_passed = false;
+                break;
+              }
+            }
+
+            if (!this_polar_passed) {
+              continue;
             }
           }
 
-          if (!this_polar_passed) {
-            continue;
-          }
+          /**
+           * Filter cl/cd v alpha
+           */
+          {
+            let this_polar_passed = true;
 
-          this_polar_passed = true;
+            const cl_cd_alpha_alpha_indexes = this.cl_cd_alpha_section.alpha_value
+              .split(";")
+              .map((value) => parse_alpha_value(wing_polar, value));
 
-          const cl_cd_alpha_alpha_indexes = this.cl_cd_alpha_section.alpha_value
-            .split(";")
-            .map((value) => parse_alpha_value(wing_polar, value));
+            // console.log("INDEXES:", cl_cd_alpha_alpha_indexes);
 
-          // console.log("INDEXES:", cl_cd_alpha_alpha_indexes);
+            for (const alpha_index of cl_cd_alpha_alpha_indexes) {
+              if (
+                wing_polar.polar_data.cl[alpha_index] /
+                  wing_polar.polar_data.cd[alpha_index] <
+                cl_cd_alpha_cl_cd_value
+              ) {
+                this_polar_passed = false;
+                break;
+              }
+            }
 
-          for (const alpha_index of cl_cd_alpha_alpha_indexes) {
-            // I cl/cd  dla zera większy od 50
-            if (
-              wing_polar.polar_data.cl[alpha_index] /
-                wing_polar.polar_data.cd[alpha_index] <
-              cl_cd_alpha_cl_cd_value
-            ) {
-              this_polar_passed = false;
-              break;
+            if (!this_polar_passed) {
+              continue;
             }
           }
-
-          if (!this_polar_passed) {
-            continue;
-          }
-
           // console.log("This fucks up");
           this.wings_search_result.data.push(wing_polar);
         }
